@@ -19,8 +19,6 @@ public class Game {
             results = isStraight;
         } else if (!isOfAKind.isEmpty()) {
             results = isOfAKind;
-        } else {
-            results.add("High Card");
         }
 
         return results;
@@ -110,10 +108,10 @@ public class Game {
         List<Integer> fourCheck = new ArrayList<>();
         //Grabbing card values
         List<Integer> cardValues = new ArrayList<>();
-        for (int i = 0; i < cards.size(); i++) {
-            cardValues.add(cards.get(i).getRank().getValue());
+        for (Card card : cards) {
+            cardValues.add(card.getRank().getValue());
         }
-
+        cardValues.sort(Collections.reverseOrder());
         //Creating an array of unique values
         int[] uniqueValues = cardValues.stream().mapToInt(Integer::intValue).distinct().toArray();
         //Creating an array of frequencies > 1 of unique values
@@ -133,23 +131,41 @@ public class Game {
                     break;
             }
         }
+//        pairCheck.sort(Collections.reverseOrder());
+//        threeCheck.sort(Collections.reverseOrder());
+//        fourCheck.sort(Collections.reverseOrder());
 
-        if (fourCheck.size() >= 1) {
+        if (!fourCheck.isEmpty()) {
             ofAKindResult.add("Four of a kind");
+            ofAKindResult.add(fourCheck.get(0));
             return ofAKindResult;
-        } else if (threeCheck.size() >= 1 && pairCheck.size() >= 1) {
+        } else if (!threeCheck.isEmpty() && !pairCheck.isEmpty()) {
             ofAKindResult.add("Full House");
+            ofAKindResult.add(threeCheck.get(0));
+            if (pairCheck.get(0).equals(threeCheck.get(0))) {
+                ofAKindResult.add(pairCheck.get(1));
+            } else {
+                ofAKindResult.add(pairCheck.get(0));
+            }
             return ofAKindResult;
-        } else if (threeCheck.size() >= 1) {
+        } else if (!threeCheck.isEmpty()) {
             ofAKindResult.add("Three of a kind");
+            ofAKindResult.add(threeCheck.get(0));
             return ofAKindResult;
         } else if (pairCheck.size() >= 2) {
             ofAKindResult.add("Two Pair");
+            ofAKindResult.add(pairCheck.get(0));
+            ofAKindResult.add(pairCheck.get(1));
             return ofAKindResult;
-        } else if (pairCheck.size() == 1) {
+        } else if (!pairCheck.isEmpty()) {
             ofAKindResult.add("Pair");
+            ofAKindResult.add(pairCheck.get(0));
             return ofAKindResult;
         }
+        ofAKindResult.add("High Card");
+        ofAKindResult.add(cardValues.get(0));
         return ofAKindResult;
     }
+
+
 }
