@@ -5,26 +5,29 @@ import java.util.List;
 import java.util.stream.IntStream;
 
 public class Game {
-    List<String> determineWin(List<Card> cards) {
-        List<String> results = new ArrayList<>();
-        boolean isFlush = checkFlush(cards);
-        if (isFlush) {
-            results.add("Flush");
-        }
-        boolean isStraight = checkStraight(cards);
-        if (isStraight) {
-            results.add("Straight");
-        }
-
-        String isOfAKind = ofAKind(cards);
-        if (!isOfAKind.equals("null")) {
-            results.add(isOfAKind);
+    List<Object> determineHand(List<Card> cards) {
+        List<Object> results = new ArrayList<>();
+        List<Object> isFlush = checkFlush(cards);
+        List<Object> isStraight = checkStraight(cards);
+        List<Object> isOfAKind = ofAKind(cards);
+        if (!isFlush.isEmpty() && !isStraight.isEmpty()) {
+            results = isStraight;
+            results.add(0, "Straight Flush");
+        } else if (!isFlush.isEmpty()) {
+            results = isFlush;
+        } else if (!isStraight.isEmpty()) {
+            results = isStraight;
+        } else if (!isOfAKind.isEmpty()) {
+            results = isOfAKind;
+        } else {
+            results.add("High Card");
         }
 
         return results;
     }
 
-    boolean checkFlush(List<Card> cards) {
+    List<Object> checkFlush(List<Card> cards) {
+        List<Object> flushResult = new ArrayList<>();
         ArrayList<String> suits = new ArrayList<String>();
         for (Card i : cards) {
             suits.add(i.getSuit().toString());
@@ -33,18 +36,47 @@ public class Game {
                 Collections.frequency(suits, "HEARTS"),
                 Collections.frequency(suits, "DIAMONDS"),
                 Collections.frequency(suits, "CLUBS")};
-        for (int i : flushNum) {
-            if (i >= 5) {
-                return true;
+        for (int i=0; i<flushNum.length; i++) {
+            if (flushNum[i] >= 5) {
+                String flushSuit;
+                switch(i) {
+                    case 0:
+                        flushSuit = "SPADES";
+                        break;
+                    case 1:
+                        flushSuit = "HEARTS";
+                        break;
+                    case 2:
+                        flushSuit = "DIAMONDS";
+                        break;
+                    case 3:
+                        flushSuit = "CLUBS";
+                        break;
+                    default:
+                        flushSuit = "null";
+                        break;
+                }
+                List<Integer> flushInts = new ArrayList<>();
+                for (int j=0; j<7; j++) {
+                    if (suits.get(j).equals(flushSuit)) {
+                        flushInts.add(cards.get(j).getRank().getValue());
+                   }
+               }
+                flushInts.sort(Collections.reverseOrder());
+                flushInts = flushInts.subList(0,5);
+                flushResult.add("Flush");
+                flushResult.addAll(flushInts);
+                return flushResult;
             }
         }
         //TODO: filter out to just that suit and find high card.
-        return false;
+        return flushResult;
     }
 
-    boolean checkStraight(List<Card> cards) {
+    List<Object> checkStraight(List<Card> cards) {
         //TODO: Check low ace straight
         //TODO: Use high card from straight (i[4])
+        List<Object> straightResult = new ArrayList<>();
         int[] cardValues = new int[7];
         for (int i = 0; i < cards.size(); i++) {
             cardValues[i] = cards.get(i).getRank().getValue();
@@ -61,16 +93,18 @@ public class Game {
             if (IntStream.of(i).distinct().toArray().length == 5) {
                 //check the last and first element are 4 apart
                 if (i[4] - i[0] == 4) {
-                    System.out.println(Arrays.toString(i));
-                    return true;
+                    straightResult.add("Straight");
+                    straightResult.add(i[4]);
+                    return straightResult;
                 }
             }
         }
-        return false;
+        return straightResult;
     }
 
-    String ofAKind(List<Card> cards) {
+    List<Object> ofAKind(List<Card> cards) {
 
+        List<Object> ofAKindResult = new ArrayList<>();
         List<Integer> pairCheck = new ArrayList<>();
         List<Integer> threeCheck = new ArrayList<>();
         List<Integer> fourCheck = new ArrayList<>();
@@ -101,18 +135,21 @@ public class Game {
         }
 
         if (fourCheck.size() >= 1) {
-            return "Four of a kind";
-        } else if(threeCheck.size() >= 1 && pairCheck.size() >= 1) {
-            return "Full House";
-        } else if(threeCheck.size() >= 1) {
-            return "Three Of A Kind";
-        } else if(pairCheck.size() >= 2) {
-            return "Two Pair";
-        } else if(pairCheck.size() == 1) {
-            return "Pair";
+            ofAKindResult.add("Four of a kind");
+            return ofAKindResult;
+        } else if (threeCheck.size() >= 1 && pairCheck.size() >= 1) {
+            ofAKindResult.add("Full House");
+            return ofAKindResult;
+        } else if (threeCheck.size() >= 1) {
+            ofAKindResult.add("Three of a kind");
+            return ofAKindResult;
+        } else if (pairCheck.size() >= 2) {
+            ofAKindResult.add("Two Pair");
+            return ofAKindResult;
+        } else if (pairCheck.size() == 1) {
+            ofAKindResult.add("Pair");
+            return ofAKindResult;
         }
-
-
-        return "null";
+        return ofAKindResult;
     }
 }

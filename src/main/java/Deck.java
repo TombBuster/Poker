@@ -23,7 +23,7 @@ public class Deck {
 
     public List<Card> getCards(int amount) {
         List<Card> hand = new ArrayList<>();
-        for(int i=0; i<amount; i++) {
+        for (int i = 0; i < amount; i++) {
             hand.add(this.cards.get(0));
             this.cards.remove(0);
         }
