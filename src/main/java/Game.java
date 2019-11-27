@@ -1,8 +1,6 @@
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.IntStream;
 
 public class Game {
     List<Object> determineHand(List<Card> cards) {
@@ -20,24 +18,28 @@ public class Game {
         } else if (!isOfAKind.isEmpty()) {
             results = isOfAKind;
         }
-
         return results;
     }
 
     List<Object> checkFlush(List<Card> cards) {
         List<Object> flushResult = new ArrayList<>();
         ArrayList<String> suits = new ArrayList<String>();
+        //Create list of suits
         for (Card i : cards) {
             suits.add(i.getSuit().toString());
         }
+
+        //Frequency list for suits
         int[] flushNum = {Collections.frequency(suits, "SPADES"),
                 Collections.frequency(suits, "HEARTS"),
                 Collections.frequency(suits, "DIAMONDS"),
                 Collections.frequency(suits, "CLUBS")};
-        for (int i=0; i<flushNum.length; i++) {
+
+        //Finds the flush suit
+        for (int i = 0; i < flushNum.length; i++) {
             if (flushNum[i] >= 5) {
                 String flushSuit;
-                switch(i) {
+                switch (i) {
                     case 0:
                         flushSuit = "SPADES";
                         break;
@@ -54,45 +56,53 @@ public class Game {
                         flushSuit = "null";
                         break;
                 }
+
+                //Filters cards so only the flush suit cards remain
                 List<Integer> flushInts = new ArrayList<>();
-                for (int j=0; j<7; j++) {
+                for (int j = 0; j < 7; j++) {
                     if (suits.get(j).equals(flushSuit)) {
                         flushInts.add(cards.get(j).getRank().getValue());
-                   }
-               }
+                    }
+                }
+                //Sorts and picks out the highest 5 cards of flush
                 flushInts.sort(Collections.reverseOrder());
-                flushInts = flushInts.subList(0,5);
+                flushInts = flushInts.subList(0, 5);
                 flushResult.add("Flush");
                 flushResult.addAll(flushInts);
                 return flushResult;
             }
         }
-        //TODO: filter out to just that suit and find high card.
         return flushResult;
     }
 
     List<Object> checkStraight(List<Card> cards) {
-        //TODO: Check low ace straight
-        //TODO: Use high card from straight (i[4])
         List<Object> straightResult = new ArrayList<>();
-        int[] cardValues = new int[7];
-        for (int i = 0; i < cards.size(); i++) {
-            cardValues[i] = cards.get(i).getRank().getValue();
+        List<Integer> cardValues = new ArrayList<>();
+        for (Card card : cards) {
+            cardValues.add(card.getRank().getValue());
+        }
+        cardValues.sort(Collections.reverseOrder());
+        List<List> cardArrays = new ArrayList<>();
+        //Splits the cards into groups of 5 for checking straight
+        cardArrays.add(cardValues.subList(0, 5));
+        cardArrays.add(cardValues.subList(1, 6));
+        cardArrays.add(cardValues.subList(2, 7));
+        //Low ace straight check
+        if (cardValues.get(0) == 14) {
+            List<Integer> potLowAce = new ArrayList<>();
+            potLowAce.addAll(cardValues.subList(3, 7));
+            potLowAce.add(1);
+            cardArrays.add(potLowAce);
         }
 
-        Arrays.sort(cardValues);
-
-        int[][] cardArrays = {Arrays.copyOfRange(cardValues, 2, 7),
-                Arrays.copyOfRange(cardValues, 1, 6),
-                Arrays.copyOfRange(cardValues, 0, 5)};
-
-        for (int[] i : cardArrays) {
+        //This loop checks if an array of five numbers are all consecutive
+        for (List<Integer> i : cardArrays) {
             //check for repeat values
-            if (IntStream.of(i).distinct().toArray().length == 5) {
+            if (i.stream().distinct().toArray().length == 5) {
                 //check the last and first element are 4 apart
-                if (i[4] - i[0] == 4) {
+                if (i.get(0) - i.get(4) == 4) {
                     straightResult.add("Straight");
-                    straightResult.add(i[4]);
+                    straightResult.add(i.get(0));
                     return straightResult;
                 }
             }
@@ -131,10 +141,8 @@ public class Game {
                     break;
             }
         }
-//        pairCheck.sort(Collections.reverseOrder());
-//        threeCheck.sort(Collections.reverseOrder());
-//        fourCheck.sort(Collections.reverseOrder());
 
+        //Logic for hand determining, flows through in order of hand value
         if (!fourCheck.isEmpty()) {
             ofAKindResult.add("Four of a kind");
             ofAKindResult.add(fourCheck.get(0));
@@ -166,6 +174,4 @@ public class Game {
         ofAKindResult.add(cardValues.get(0));
         return ofAKindResult;
     }
-
-
 }
