@@ -27,6 +27,51 @@ public class Game {
         return results;
     }
 
+    List<Integer> determineWin(List<List> results) {
+        List <Integer> winners = new ArrayList<>();
+        List <String> hands = new ArrayList<>();
+        //Create list of hands of players
+        for (List<Object> result: results) {
+            hands.add(result.get(0).toString());
+        }
+        //Find frequencies of each of the hands
+        String[] allHands = {"Straight Flush","Four of a kind","Full House",
+                "Flush","Straight","Three of a kind","Two Pair","Pair","High Card"};
+        int[] flushNum = new int[allHands.length];
+        for (int i = 0; i < allHands.length; i++) {
+            flushNum[i] = Collections.frequency(hands, allHands[i]);
+        }
+
+//        int[] flushNum = {Collections.frequency(hands, "Straight Flush"),
+//                Collections.frequency(hands, "Four of a kind"),
+//                Collections.frequency(hands, "Full House"),
+//                Collections.frequency(hands, "Flush"),
+//                Collections.frequency(hands, "Straight"),
+//                Collections.frequency(hands, "Three of a kind"),
+//                Collections.frequency(hands, "Two Pair"),
+//                Collections.frequency(hands, "Pair"),
+//                Collections.frequency(hands, "High Card")};
+        String winningHand = "";
+        //The winning hand is whichever has a positive value in order of hand ranking
+        for (int i = 0; i < flushNum.length; i++) {
+            if (flushNum[i] > 0) {
+                winningHand = allHands[i];
+                break;
+            }
+        }
+
+        for (int i = 0; i < hands.size(); i++) {
+            if (hands.get(i).equals(winningHand)) {
+                winners.add(i);
+
+            }
+        }
+
+
+
+        return winners;
+    }
+
     List<Object> checkFlush(List<Card> cards) {
         List<Object> flushResult = new ArrayList<>();
         ArrayList<String> suits = new ArrayList<String>();
@@ -154,7 +199,6 @@ public class Game {
             for (int i = 0; i < 4 ; i++) {
                 ofAKindResult.add(fourCheck.get(0));
             }
-            //TODO: add kicker
             return ofAKindResult;
         } else if (!threeCheck.isEmpty() && !pairCheck.isEmpty()) {
             ofAKindResult.add("Full House");
