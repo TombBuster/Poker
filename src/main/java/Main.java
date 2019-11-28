@@ -3,30 +3,72 @@ import java.util.List;
 
 public class Main {
 
-    public static void main(String args[]) {
-
-
-
-            Deck newDeck = new Deck();
-            newDeck.shuffle();
-            List<List> results = new ArrayList<>();
-            List<Card> playerHand = newDeck.getCards(5);
+    public static void main(String args[]) throws InterruptedException {
+        //Initialisation
+//        System.out.println("How many people?");
+            int numPlayers = 6;
+            List<Player> players = new ArrayList();
             Game game = new Game();
-            List<Card>[] players = new List[6];
-        for (int k = 0; k < players.length; k++) {
-            players[k] = new ArrayList(playerHand);
-            List<Card> newCards = newDeck.getCards(2);
-            players[k].addAll(newCards);
-            List<Object> result = game.determineHand(players[k]);
-            System.out.println("\nPlayer " + k + "'s Hand is: \n");
-            for (Card i : players[k]) {
-                System.out.print(i.getRank() + " OF ");
-                System.out.println(i.getSuit());
-            }
+
+            //Create players
+        for (int i = 0; i < numPlayers; i++) {
+//            System.out.println("Hi, Player " + i + ", what's your name?");
+            String name = Integer.toString(i);
+            Player player = new Player(name);
+            players.add(player);
+        }
+
+        //new round start
+        game.freshDeck();
+
+        //Deal player's hands
+        for (int i = 0; i < numPlayers; i++) {
+            List<Card> dealtCard = game.dealCard();
+            players.get(i).setFirstCard(dealtCard);
+        }
+        for (int i = 0; i < numPlayers; i++) {
+            List<Card> dealtCard = game.dealCard();
+            players.get(i).setSecondCard(dealtCard);
+        }
+
+        //preflop betting
+
+        //play flop
+        List<Card> communityCards = game.dealFlop();
+        game.showCards(communityCards);
+        Thread.sleep(1000);
+        //flop betting
+
+        //play turn
+        communityCards.addAll(game.dealTurn());
+        game.showCards(communityCards);
+        Thread.sleep(1000);
+        //turn betting
+
+        //play river
+        communityCards.addAll(game.dealRiver());
+        game.showCards(communityCards);
+        Thread.sleep(1000);
+        //river betting
+
+        //Deal community cards
+        game.showCards(communityCards);
+        Thread.sleep(1000);
+        //start showdown!
+        List<List> results = new ArrayList<>();
+            Showdown showdown = new Showdown();
+
+        for (int i = 0; i < numPlayers; i++) {
+            players.get(i).showCards();
+            Thread.sleep(1000);
+            List<Object> result = players.get(i).getResult(communityCards, showdown);
             System.out.println(result);
             results.add(result);
         }
-        List<Integer> winners = game.determineWin(results);
-        System.out.println(winners);
+        //calculates winners from hands
+        List<Integer> winners = showdown.determineWin(results);
+        for (int i: winners) {
+            System.out.println("Player " + i + " Won!");
+        }
     }
 }
