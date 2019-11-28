@@ -2,6 +2,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class Game {
     List<Object> determineHand(List<Card> cards) {
@@ -60,16 +61,54 @@ public class Game {
             }
         }
 
+        //Generates list of players with winning hand
         for (int i = 0; i < hands.size(); i++) {
             if (hands.get(i).equals(winningHand)) {
                 winners.add(i);
-
             }
         }
 
-
-
+        if (winners.size() == 1) {
+            return winners;
+        } else {
+            List <Integer> winnersMulti = new ArrayList<>();
+            String finalWinningHand = winningHand;
+            results = results.stream().filter(result -> result.get(0).toString().equals(finalWinningHand)).collect(Collectors.toList());
+            for (int i = 1; i < 6; i++) {
+                Object[] multiArr = winMulti(i, results, winners);
+                results = (List<List>) multiArr[0];
+                winners = (List<Integer>) multiArr[1];
+            }
+        }
         return winners;
+    }
+
+    Object[] winMulti(int i, List<List> results, List<Integer> winners) {
+        List<List> newResults = new ArrayList<>();
+        List<Integer> newWinners = new ArrayList<>();
+        int[] currentIndex = new int[results.size()];
+        for (int j = 0; j < results.size(); j++) {
+            currentIndex[j] = (int) results.get(j).get(i);
+        }
+        int maxNum = getMax(currentIndex);
+        for (int j = 0; j < currentIndex.length; j++) {
+            if (currentIndex[j] == maxNum) {
+                newResults.add(results.get(j)); //instead of removing (shifts indices backwards), add to new list and return that.
+                newWinners.add(winners.get(j));
+            }
+        }
+        Object[] multiArr = {newResults, newWinners};
+        return multiArr;
+    }
+
+    int getMax(int[] arr) {
+        int maxNum = 0;
+        for (int value : arr) {
+            if (value > maxNum) {
+                maxNum = value;
+            }
+        }
+        return maxNum;
     }
 
     List<Object> checkFlush(List<Card> cards) {

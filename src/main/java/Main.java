@@ -13,7 +13,7 @@ public class Main {
             List<Card> playerHand = newDeck.getCards(5);
             Game game = new Game();
             List<Card>[] players = new List[6];
-        for (int k = 0; k < 6; k++) {
+        for (int k = 0; k < players.length; k++) {
             players[k] = new ArrayList(playerHand);
             List<Card> newCards = newDeck.getCards(2);
             players[k].addAll(newCards);
