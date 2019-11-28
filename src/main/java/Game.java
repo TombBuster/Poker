@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -11,11 +12,16 @@ public class Game {
         if (!isFlush.isEmpty() && !isStraight.isEmpty()) {
             results = isStraight;
             results.add(0, "Straight Flush");
-        } else if (!isFlush.isEmpty()) {
+        } else if (isOfAKind.get(0).equals("Four of a kind")) {
+            results = isOfAKind;
+        } else if (isOfAKind.get(0).equals("Full House")) {
+            results = isOfAKind;
+        }
+        else if (!isFlush.isEmpty()) {
             results = isFlush;
         } else if (!isStraight.isEmpty()) {
             results = isStraight;
-        } else if (!isOfAKind.isEmpty()) {
+        } else {
             results = isOfAKind;
         }
         return results;
@@ -102,7 +108,7 @@ public class Game {
                 //check the last and first element are 4 apart
                 if (i.get(0) - i.get(4) == 4) {
                     straightResult.add("Straight");
-                    straightResult.add(i.get(0));
+                    straightResult.addAll(i);
                     return straightResult;
                 }
             }
@@ -141,37 +147,72 @@ public class Game {
                     break;
             }
         }
-
+        List<Integer> kickers = new ArrayList<>();
         //Logic for hand determining, flows through in order of hand value
         if (!fourCheck.isEmpty()) {
             ofAKindResult.add("Four of a kind");
-            ofAKindResult.add(fourCheck.get(0));
+            for (int i = 0; i < 4 ; i++) {
+                ofAKindResult.add(fourCheck.get(0));
+            }
+            //TODO: add kicker
             return ofAKindResult;
         } else if (!threeCheck.isEmpty() && !pairCheck.isEmpty()) {
             ofAKindResult.add("Full House");
-            ofAKindResult.add(threeCheck.get(0));
+            for (int i = 0; i < 3; i++) {
+                ofAKindResult.add(threeCheck.get(0));
+            }
             if (pairCheck.get(0).equals(threeCheck.get(0))) {
                 ofAKindResult.add(pairCheck.get(1));
+                ofAKindResult.add(pairCheck.get(1));
             } else {
+                ofAKindResult.add(pairCheck.get(0));
                 ofAKindResult.add(pairCheck.get(0));
             }
             return ofAKindResult;
         } else if (!threeCheck.isEmpty()) {
             ofAKindResult.add("Three of a kind");
-            ofAKindResult.add(threeCheck.get(0));
+            for (int i = 0; i < 3; i++) {
+                ofAKindResult.add(threeCheck.get(0));
+            }
+            for (int uniqueValue : uniqueValues) {
+                if (uniqueValue != threeCheck.get(0)) {
+                    kickers.add(uniqueValue);
+                }
+            }
+            ofAKindResult.add(kickers.get(0));
+            ofAKindResult.add(kickers.get(1));
             return ofAKindResult;
         } else if (pairCheck.size() >= 2) {
             ofAKindResult.add("Two Pair");
             ofAKindResult.add(pairCheck.get(0));
+            ofAKindResult.add(pairCheck.get(0));
             ofAKindResult.add(pairCheck.get(1));
+            ofAKindResult.add(pairCheck.get(1));
+            for (int uniqueValue : uniqueValues) {
+                if (uniqueValue != pairCheck.get(0) || uniqueValue != pairCheck.get(1)) {
+                    kickers.add(uniqueValue);
+                }
+            }
+            ofAKindResult.add(kickers.get(0));
             return ofAKindResult;
         } else if (!pairCheck.isEmpty()) {
             ofAKindResult.add("Pair");
             ofAKindResult.add(pairCheck.get(0));
+            ofAKindResult.add(pairCheck.get(0));
+            for (int uniqueValue : uniqueValues) {
+                if (uniqueValue != pairCheck.get(0)) {
+                    kickers.add(uniqueValue);
+                }
+            }
+            ofAKindResult.add(kickers.get(0));
+            ofAKindResult.add(kickers.get(1));
+            ofAKindResult.add(kickers.get(2));
             return ofAKindResult;
         }
         ofAKindResult.add("High Card");
-        ofAKindResult.add(cardValues.get(0));
+        for (int i = 0; i < 5; i++) {
+            ofAKindResult.add(cardValues.get(i));
+        }
         return ofAKindResult;
     }
 }
