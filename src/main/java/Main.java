@@ -51,7 +51,7 @@ public class Main {
         Thread.sleep(1000);
         //river betting
 
-        //Deal community cards
+        //Show community cards
         game.showCards(communityCards);
         Thread.sleep(1000);
         //start showdown!

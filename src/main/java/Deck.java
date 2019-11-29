@@ -14,7 +14,6 @@ public class Deck {
                 cards.add(new Card(rank, suit)); // create a new instance of the Card class
             }
         }
-
     }
 
     public void shuffle() {
