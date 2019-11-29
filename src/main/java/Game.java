@@ -1,4 +1,5 @@
 import java.util.List;
+import java.util.Scanner;
 
 public class Game {
     private Deck deck;
@@ -36,5 +37,117 @@ public class Game {
             System.out.print(i.getRank() + " OF ");
             System.out.println(i.getSuit());
         }
+    }
+
+    int betStage(List<Player> players, int liveBet) throws InterruptedException {
+        int allPlayed = 0;
+        int numPlayers = players.size();
+        int i = 0;
+
+        while(allPlayed < numPlayers) {
+            i = i % numPlayers;
+            Player player = players.get(i);
+            // check if folded or all in
+            if(!player.getFold() && !player.getAllIn()) {
+                //display current liveBet
+                System.out.println("Hi, player " + i);
+                System.out.println("The live bet is: " + liveBet);
+                //Scan for options [Check, call, fold, raise]
+                Scanner scanner = new Scanner(System.in);
+                Thread.sleep(500);
+                System.out.println("Check, Raise, Fold?");
+                boolean isValidChoice = false;
+                String playerChoice = "C";
+                String[] choices = {"Check", "Call", "C","Fold", "F", "Raise", "R"};
+                while (!isValidChoice) {
+                    System.out.println("Please choose an option: ");
+                    playerChoice = scanner.nextLine();
+                    // Case insensitive
+                    if (!playerChoice.equals("")) {
+                        playerChoice = playerChoice.substring(0, 1).toUpperCase() + playerChoice.substring(1).toLowerCase();
+                    }
+                    for (String choice : choices) {
+                        if (playerChoice.equals(choice)) {
+                            isValidChoice = true;
+                            break;
+                        }
+                    }
+                    switch (playerChoice) {
+                        case "C":
+                            playerChoice = "Call";
+                            break;
+                        case "Check":
+                            playerChoice = "Call";
+                            break;
+                        case "F":
+                            playerChoice = "Fold";
+                            break;
+                        case "R":
+                            playerChoice = "Raise";
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+
+                //fold logic: take away bet from balance, set boolean to true
+                if (playerChoice.equals("Fold")) {
+                    player.setFold(true);
+                }
+                //raise logic: scan for raise, check if bet is greater than liveBet, and greater than balance. TODO: Add option for cancel.
+                //Change bet and liveBet to new value. if bet==balance, set allIn boolean to true.
+                //set allPlayed = 1
+                else if (playerChoice.equals("Raise")) {
+                    int inputBet = player.getBet();
+                    int balance = player.getBalance();
+                    boolean isValidBet = false;
+                    while (!isValidBet) {
+                        try {
+                            System.out.println("Please enter an amount to bet: ");
+                            inputBet = Integer.parseInt(scanner.nextLine());
+                        } catch(Exception e) {
+                            System.out.println("Invalid type. Please enter a number.");
+                            continue;
+                        }
+                        if (inputBet > balance) {
+                            System.out.println("You don't have enough money for that bet. Please enter a lower amount.");
+                        } else if (inputBet <= 0) {
+                            System.out.println("Please enter a positive amount.");
+                        } else if (balance == inputBet) {
+                            System.out.println("Going all in!");
+                            isValidBet = true;
+                            player.setAllIn(true);
+                            // TODO: reset boolean values and bets at end of round.
+                        } else if(inputBet <= liveBet) {
+                            System.out.println("You need to enter a higher number than the current bet.");
+                        }  else {
+                            isValidBet = true;
+                        }
+                    }
+                    player.setBet(inputBet);
+                    liveBet = inputBet;
+                    allPlayed = 0;
+                }
+                //check/call logic: if bet != liveBet, set equal as long as <= balance. if >, set all in boolean to true, and bet to balance.
+                else if (playerChoice.equals("Call")) {
+                    int bet = player.getBet();
+                    int balance = player.getBalance();
+                    if (bet != liveBet) {
+                        if (liveBet < balance) {
+                            player.setBet(liveBet);
+                        } else {
+                            player.setAllIn(true);
+                            player.setBet(balance);
+                        }
+                    }
+                }
+            }
+
+
+            allPlayed++;
+            i++;
+        }
+        return liveBet;
     }
 }

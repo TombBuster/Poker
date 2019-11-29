@@ -32,25 +32,26 @@ public class Main {
         }
 
         //preflop betting
-
+        int bigBlind = 10;
+        int liveBet = game.betStage(players, bigBlind);
         //play flop
         List<Card> communityCards = game.dealFlop();
         game.showCards(communityCards);
         Thread.sleep(1000);
         //flop betting
-
+//        liveBet = game.betStage(players, liveBet);
         //play turn
         communityCards.addAll(game.dealTurn());
         game.showCards(communityCards);
         Thread.sleep(1000);
         //turn betting
-
+//        liveBet = game.betStage(players, liveBet);
         //play river
         communityCards.addAll(game.dealRiver());
         game.showCards(communityCards);
         Thread.sleep(1000);
         //river betting
-
+//        liveBet = game.betStage(players, liveBet);
         //Show community cards
         game.showCards(communityCards);
         Thread.sleep(1000);
@@ -69,6 +70,11 @@ public class Main {
         List<Integer> winners = showdown.determineWin(results);
         for (int i: winners) {
             System.out.println("Player " + i + " Won!");
+        }
+        for (int i = 0; i < players.size(); i++) {
+            System.out.println(i);
+            int bet = players.get(i).getBet();
+            System.out.println(bet);
         }
     }
 }
