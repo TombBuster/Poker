@@ -55,7 +55,7 @@ public class Game {
             // check if folded or all in
             if (!player.getFold() && !player.getAllIn()) {
                 //display current liveBet
-                System.out.println("Hi, player " + players.get(i).getName());
+                System.out.println("Hi, Player " + players.get(i).getName());
                 System.out.println("The live bet is: " + liveBet);
                 System.out.println("Your cards are: ");
                 players.get(i).showCards();
@@ -108,14 +108,14 @@ public class Game {
                     int inputBet = player.getBet();
                     int balance = player.getBalance();
                     boolean isValidBet = false;
-                    while (!isValidBet) {
-                        try {
-                            System.out.println("Please enter an amount to bet: ");
-                            inputBet = Integer.parseInt(scanner.nextLine());
-                        } catch (Exception e) {
-                            System.out.println("Invalid type. Please enter a number.");
-                            continue;
-                        }
+                        while (!isValidBet) {
+                            try {
+                                System.out.println("Please enter an amount to bet: ");
+                                inputBet = Integer.parseInt(scanner.nextLine());
+                            } catch (Exception e) {
+                                System.out.println("Invalid type. Please enter a number.");
+                                continue;
+                            }
                         if (inputBet > balance) {
                             System.out.println("You don't have enough money for that bet. Please enter a lower amount.");
                         } else if (inputBet <= 0) {

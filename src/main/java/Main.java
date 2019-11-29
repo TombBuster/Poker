@@ -1,12 +1,29 @@
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
 public class Main {
 
     public static void main(String args[]) throws InterruptedException {
         //Initialisation
-//        System.out.println("How many people?");
+        Scanner scanner = new Scanner(System.in);
         int numPlayers = 6;
+        boolean isValidNumberOfPlayers = false;
+        while (!isValidNumberOfPlayers) {
+            try {
+                System.out.println("How many people are playing? (2-6)");
+                numPlayers = Integer.parseInt(scanner.nextLine());
+            } catch (Exception e) {
+                System.out.println("Invalid type. Please enter a number.");
+                continue;
+            }
+            if (numPlayers <= 1 || numPlayers > 6) {
+                System.out.println("Please enter a valid number of players.");
+            } else {
+                isValidNumberOfPlayers = true;
+            }
+        }
+
         List<Player> players = new ArrayList();
         Game game = new Game();
         int currentBigBlind = 0;
@@ -87,19 +104,27 @@ public class Main {
             for (int i : noFoldWinners) {
                 System.out.println("Player " + players.get(i).getName() + " Won!");
             }
+            Thread.sleep(2000);
+            //Show player's bets
+            System.out.println("Final bets:\n");
             for (int i = 0; i < players.size(); i++) {
                 System.out.println(i);
                 int bet = players.get(i).getBet();
                 System.out.println(bet);
             }
+            Thread.sleep(1000);
             System.out.println("Settling bets...");
             game.betSettle(noFoldWinners, players);
+            Thread.sleep(1000);
+            //Show player's balance
+            System.out.println("Current Balances:\n");
             for (int i = 0; i < players.size(); i++) {
                 System.out.println(i);
                 int balance = players.get(i).getBalance();
                 System.out.println(balance);
             }
             players = game.checkBust(players);
+            currentBigBlind++;
         }
         System.out.println("Player " + players.get(0).getName() + " Won Poker!");
     }
