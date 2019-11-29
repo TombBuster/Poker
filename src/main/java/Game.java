@@ -1,5 +1,7 @@
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import java.util.stream.IntStream;
 
 public class Game {
     private Deck deck;
@@ -90,7 +92,6 @@ public class Game {
                     }
                 }
 
-
                 //fold logic: take away bet from balance, set boolean to true
                 if (playerChoice.equals("Fold")) {
                     player.setFold(true);
@@ -118,7 +119,6 @@ public class Game {
                             System.out.println("Going all in!");
                             isValidBet = true;
                             player.setAllIn(true);
-                            // TODO: reset boolean values and bets at end of round.
                         } else if(inputBet <= liveBet) {
                             System.out.println("You need to enter a higher number than the current bet.");
                         }  else {
@@ -143,11 +143,42 @@ public class Game {
                     }
                 }
             }
-
-
             allPlayed++;
             i++;
         }
         return liveBet;
+    }
+
+    void betSettle(List<Integer> winners, List<Player> players) {
+        List<Integer> winningBets = new ArrayList<>();
+        int pot = 0;
+        for (int i = 0; i < players.size(); i++) {
+            Player player = players.get(i);
+            int bet = player.getBet();
+            pot += bet;
+
+            //Round reset
+            player.setAllIn(false);
+            player.setFold(false);
+            player.setBet(0);
+            //Settling bets of non-winners
+            if (!winners.contains(i)) {
+                player.setBalance(player.getBalance() - bet);
+                if (player.getBalance() == 0) {
+                    System.out.println("Player " + i + " is bust!");
+                    //TODO: sort out removing players when bust
+                }
+            } else {
+                //Settle bets of winning players
+                winningBets.add(bet);
+            }
+        }
+
+        int sum = winningBets.stream().mapToInt(Integer::intValue).sum();
+        for (int i = 0; i < winners.size(); i++) {
+            Player player = players.get(winners.get(i));
+            int ratio = winningBets.get(i) / sum;
+            player.setBalance(player.getBalance() + ratio*pot);
+        }
     }
 }

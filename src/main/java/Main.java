@@ -68,13 +68,27 @@ public class Main {
         }
         //calculates winners from hands
         List<Integer> winners = showdown.determineWin(results);
-        for (int i: winners) {
+        List <Integer> noFoldWinners = new ArrayList<>();
+        for (int i : winners) {
+            if (!players.get(i).getFold()) {
+                noFoldWinners.add(i);
+            }
+        }
+
+        for (int i: noFoldWinners) {
             System.out.println("Player " + i + " Won!");
         }
         for (int i = 0; i < players.size(); i++) {
             System.out.println(i);
             int bet = players.get(i).getBet();
             System.out.println(bet);
+        }
+        System.out.println("Settling bets...");
+        game.betSettle(noFoldWinners, players);
+        for (int i = 0; i < players.size(); i++) {
+            System.out.println(i);
+            int balance = players.get(i).getBalance();
+            System.out.println(balance);
         }
     }
 }
