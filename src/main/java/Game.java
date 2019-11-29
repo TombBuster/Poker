@@ -3,8 +3,11 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.stream.IntStream;
 
+import static oracle.jrockit.jfr.events.Bits.intValue;
+
 public class Game {
     private Deck deck;
+
     void freshDeck() {
         Deck newDeck = new Deck();
         newDeck.shuffle();
@@ -46,21 +49,23 @@ public class Game {
         int numPlayers = players.size();
         int i = 0;
 
-        while(allPlayed < numPlayers) {
+        while (allPlayed < numPlayers) {
             i = i % numPlayers;
             Player player = players.get(i);
             // check if folded or all in
-            if(!player.getFold() && !player.getAllIn()) {
+            if (!player.getFold() && !player.getAllIn()) {
                 //display current liveBet
-                System.out.println("Hi, player " + i);
+                System.out.println("Hi, player " + players.get(i).getName());
                 System.out.println("The live bet is: " + liveBet);
+                System.out.println("Your cards are: ");
+                players.get(i).showCards();
                 //Scan for options [Check, call, fold, raise]
                 Scanner scanner = new Scanner(System.in);
                 Thread.sleep(500);
-                System.out.println("Check, Raise, Fold?");
+                System.out.println("\nCheck, Raise, Fold?");
                 boolean isValidChoice = false;
                 String playerChoice = "C";
-                String[] choices = {"Check", "Call", "C","Fold", "F", "Raise", "R"};
+                String[] choices = {"Check", "Call", "C", "Fold", "F", "Raise", "R"};
                 while (!isValidChoice) {
                     System.out.println("Please choose an option: ");
                     playerChoice = scanner.nextLine();
@@ -107,7 +112,7 @@ public class Game {
                         try {
                             System.out.println("Please enter an amount to bet: ");
                             inputBet = Integer.parseInt(scanner.nextLine());
-                        } catch(Exception e) {
+                        } catch (Exception e) {
                             System.out.println("Invalid type. Please enter a number.");
                             continue;
                         }
@@ -119,9 +124,9 @@ public class Game {
                             System.out.println("Going all in!");
                             isValidBet = true;
                             player.setAllIn(true);
-                        } else if(inputBet <= liveBet) {
+                        } else if (inputBet <= liveBet) {
                             System.out.println("You need to enter a higher number than the current bet.");
-                        }  else {
+                        } else {
                             isValidBet = true;
                         }
                     }
@@ -165,7 +170,7 @@ public class Game {
             if (!winners.contains(i)) {
                 player.setBalance(player.getBalance() - bet);
                 if (player.getBalance() == 0) {
-                    System.out.println("Player " + i + " is bust!");
+                    System.out.println("Player " + players.get(i).getName() + " is bust!");
                     //TODO: sort out removing players when bust
                 }
             } else {
@@ -177,8 +182,19 @@ public class Game {
         int sum = winningBets.stream().mapToInt(Integer::intValue).sum();
         for (int i = 0; i < winners.size(); i++) {
             Player player = players.get(winners.get(i));
-            int ratio = winningBets.get(i) / sum;
-            player.setBalance(player.getBalance() + ratio*pot);
+            double ratio = ((double) winningBets.get(i)) / sum;
+            double newBalance = player.getBalance() + ratio * pot - winningBets.get(i);
+            player.setBalance(intValue(newBalance));
         }
+    }
+
+    List<Player> checkBust(List<Player> players) {
+        List<Player> newPlayers = new ArrayList<>();
+        for (int i = 0; i < players.size(); i++) {
+            if ( players.get(i).getBalance() != 0) {
+                newPlayers.add(players.get(i));
+            }
+        }
+        return newPlayers;
     }
 }
